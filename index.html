@@ -1,0 +1,877 @@
+<title>Ruta Python Quant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap">
+
+<style>
+:root{
+  --paper:#EFF2F5; --surface:#FFFFFF; --surface-2:#F6F8FA;
+  --ink:#16202B; --ink-2:#4A5A6A; --ink-3:#7C8B99;
+  --line:#DAE1E8; --line-2:#C3CEd8;
+  --primary:#12525A; --primary-soft:#E2EDEE;
+  --clay:#9E3A2A; --clay-soft:#F7E7E3;
+  --green:#2C6349; --green-soft:#E2EFE8;
+  --amber:#7E5A12; --amber-soft:#F5EDDC;
+  --code-bg:#101820; --code-ink:#DCE5EC;
+  --shadow:0 1px 2px rgba(22,32,43,.05), 0 6px 18px -10px rgba(22,32,43,.22);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0E141A; --surface:#161E26; --surface-2:#1B242D;
+    --ink:#E3EAF0; --ink-2:#A3B2BF; --ink-3:#75858F;
+    --line:#28333D; --line-2:#36444F;
+    --primary:#5FC0C4; --primary-soft:#16323A;
+    --clay:#E28C79; --clay-soft:#33201C;
+    --green:#78C39C; --green-soft:#172E24;
+    --amber:#D6A64B; --amber-soft:#302713;
+    --code-bg:#0A1016; --code-ink:#D3DEE7;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 6px 20px -10px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0E141A; --surface:#161E26; --surface-2:#1B242D;
+  --ink:#E3EAF0; --ink-2:#A3B2BF; --ink-3:#75858F;
+  --line:#28333D; --line-2:#36444F;
+  --primary:#5FC0C4; --primary-soft:#16323A;
+  --clay:#E28C79; --clay-soft:#33201C;
+  --green:#78C39C; --green-soft:#172E24;
+  --amber:#D6A64B; --amber-soft:#302713;
+  --code-bg:#0A1016; --code-ink:#D3DEE7;
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 6px 20px -10px rgba(0,0,0,.6);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:16px; line-height:1.6; -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{font-family:"IBM Plex Serif",Georgia,"Times New Roman",serif; text-wrap:balance; margin:0}
+code,pre{font-family:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+a{color:var(--primary)}
+:focus-visible{outline:2px solid var(--primary); outline-offset:3px; border-radius:2px}
+
+.shell{max-width:1180px; margin:0 auto; padding:0 24px 96px}
+
+/* ── Cabecera ─────────────────────────────────────────────── */
+.masthead{padding:56px 0 36px; border-bottom:1px solid var(--line)}
+.eyebrow{
+  font-size:12px; font-weight:600; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--ink-3); margin:0 0 14px
+}
+.masthead h1{font-size:clamp(32px,5vw,48px); line-height:1.12; font-weight:600; letter-spacing:-.015em}
+.lede{max-width:63ch; color:var(--ink-2); font-size:17px; margin:18px 0 0}
+.meta-row{display:flex; flex-wrap:wrap; gap:10px; margin-top:26px}
+.pill{
+  display:inline-flex; align-items:center; gap:7px; padding:6px 13px; border-radius:999px;
+  background:var(--surface); border:1px solid var(--line); font-size:13px; color:var(--ink-2);
+  font-variant-numeric:tabular-nums
+}
+.pill b{color:var(--ink); font-weight:600}
+
+/* ── Mapa de resultado ────────────────────────────────────── */
+.router{margin:40px 0 8px}
+.router h2{font-size:22px; font-weight:600; margin-bottom:6px}
+.router p.sub{color:var(--ink-2); margin:0 0 20px; max-width:63ch; font-size:15px}
+.bands{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:14px}
+.band{
+  background:var(--surface); border:1px solid var(--line); border-radius:10px;
+  padding:18px 18px 16px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:8px
+}
+.band .score{
+  font-family:"JetBrains Mono",monospace; font-size:13px; font-weight:700;
+  color:var(--primary); letter-spacing:.02em; font-variant-numeric:tabular-nums
+}
+.band h3{font-size:16.5px; font-weight:600; line-height:1.3}
+.band p{margin:0; font-size:14px; color:var(--ink-2)}
+
+/* ── Cuerpo en dos columnas ───────────────────────────────── */
+.layout{display:grid; grid-template-columns:236px 1fr; gap:52px; margin-top:56px; align-items:start}
+@media (max-width:920px){ .layout{grid-template-columns:1fr; gap:32px} }
+
+.rail{position:sticky; top:28px}
+@media (max-width:920px){ .rail{position:static} }
+.rail .rail-title{
+  font-size:12px; font-weight:600; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--ink-3); margin:0 0 14px
+}
+.rail ol{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:1px}
+.rail a{
+  display:grid; grid-template-columns:26px 1fr; gap:10px; align-items:baseline;
+  padding:7px 9px; border-radius:6px; text-decoration:none; color:var(--ink-2);
+  font-size:14px; line-height:1.35; border-left:2px solid transparent
+}
+.rail a:hover{background:var(--surface); color:var(--ink)}
+.rail a .n{
+  font-family:"JetBrains Mono",monospace; font-size:11.5px; color:var(--ink-3);
+  font-variant-numeric:tabular-nums
+}
+.rail .group{
+  font-size:11.5px; font-weight:600; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--ink-3); margin:18px 0 7px; padding-left:9px
+}
+.rail .group:first-of-type{margin-top:0}
+
+/* ── Tarjetas de tema ─────────────────────────────────────── */
+.topic{
+  background:var(--surface); border:1px solid var(--line); border-radius:12px;
+  padding:30px 30px 26px; box-shadow:var(--shadow); scroll-margin-top:24px
+}
+.topics{display:flex; flex-direction:column; gap:22px}
+.topic-head{display:flex; flex-wrap:wrap; gap:12px; align-items:baseline; margin-bottom:6px}
+.topic-num{
+  font-family:"JetBrains Mono",monospace; font-size:12px; font-weight:700; color:var(--primary);
+  background:var(--primary-soft); padding:3px 8px; border-radius:5px; letter-spacing:.04em
+}
+.topic-hours{
+  font-family:"JetBrains Mono",monospace; font-size:12px; color:var(--amber);
+  background:var(--amber-soft); padding:3px 8px; border-radius:5px; font-variant-numeric:tabular-nums
+}
+.topic h2{font-size:23px; font-weight:600; letter-spacing:-.01em; margin:2px 0 12px; line-height:1.25}
+.topic .intro{color:var(--ink-2); margin:0 0 22px; max-width:64ch; font-size:15.5px}
+
+.pair{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+@media (max-width:760px){ .pair{grid-template-columns:1fr} }
+.slab{border-radius:9px; padding:14px 16px 4px; border:1px solid var(--line)}
+.slab.bad{background:var(--clay-soft); border-color:color-mix(in srgb,var(--clay) 26%,transparent)}
+.slab.good{background:var(--green-soft); border-color:color-mix(in srgb,var(--green) 26%,transparent)}
+.slab .tag{
+  font-size:11.5px; font-weight:600; letter-spacing:.1em; text-transform:uppercase;
+  display:flex; align-items:center; gap:7px; margin-bottom:10px
+}
+.slab.bad .tag{color:var(--clay)}
+.slab.good .tag{color:var(--green)}
+.slab .tag .mark{
+  width:16px; height:16px; border-radius:50%; display:grid; place-items:center;
+  font-size:11px; font-weight:700; color:var(--surface); line-height:1
+}
+.slab.bad .tag .mark{background:var(--clay)}
+.slab.good .tag .mark{background:var(--green)}
+
+pre{
+  background:var(--code-bg); color:var(--code-ink); border-radius:7px;
+  padding:14px 15px; overflow-x:auto; font-size:13px; line-height:1.6; margin:0 0 14px
+}
+pre .c{color:#7C8FA0; font-style:italic}
+pre .k{color:#7FD1CE}
+pre .s{color:#E6B98C}
+pre .o{color:#E8A0A0}
+
+.why{
+  margin-top:20px; padding:15px 17px; border-radius:9px; background:var(--surface-2);
+  border-left:3px solid var(--primary)
+}
+.why .tag{
+  font-size:11.5px; font-weight:600; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--primary); display:block; margin-bottom:6px
+}
+.why p{margin:0; font-size:14.5px; color:var(--ink-2)}
+.why p b{color:var(--ink); font-weight:600}
+
+.check{margin-top:16px; padding-top:16px; border-top:1px dashed var(--line-2)}
+.check .tag{
+  font-size:11.5px; font-weight:600; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--ink-3); display:block; margin-bottom:9px
+}
+.check p{margin:0 0 10px; font-size:14.5px; color:var(--ink-2)}
+.check pre{margin-bottom:0}
+
+/* ── Cierre ───────────────────────────────────────────────── */
+.closing{
+  margin-top:56px; padding:28px 30px; border-radius:12px;
+  background:var(--surface); border:1px solid var(--line); box-shadow:var(--shadow)
+}
+.closing h2{font-size:20px; font-weight:600; margin-bottom:10px}
+.closing p{color:var(--ink-2); margin:0 0 12px; max-width:65ch; font-size:15px}
+.closing ul{margin:0; padding-left:20px; color:var(--ink-2); font-size:15px}
+.closing li{margin-bottom:7px}
+.closing li b{color:var(--ink); font-weight:600}
+.foot{margin-top:34px; color:var(--ink-3); font-size:13.5px; max-width:65ch}
+
+@media (prefers-reduced-motion:no-preference){
+  .rail a{transition:background .14s ease, color .14s ease}
+}
+</style>
+
+<div class="shell">
+
+  <header class="masthead">
+    <p class="eyebrow">Especialización en Finanzas Cuantitativas</p>
+    <h1>Los 12 temas de Python que el programa da por sabidos</h1>
+    <p class="lede">
+      Cada tema de esta guía corresponde a una pregunta de la autoevaluación. Si fallaste una, la sección
+      que le toca está abajo: el error típico, la forma correcta, y por qué importa cuando el dato es una
+      serie de precios y no un ejemplo de juguete.
+    </p>
+    <div class="meta-row">
+      <span class="pill"><b>12</b> temas</span>
+      <span class="pill"><b>46 h</b> si empiezas de cero</span>
+      <span class="pill">Orden sugerido: <b>de arriba abajo</b></span>
+    </div>
+  </header>
+
+  <section class="router">
+    <h2>¿Por dónde empiezo?</h2>
+    <p class="sub">
+      Según el puntaje que obtuviste sobre 12. Ninguna banda te cierra la puerta al programa: solo indica
+      desde dónde partes.
+    </p>
+    <div class="bands">
+      <article class="band">
+        <span class="score">10 – 12</span>
+        <h3>Listo para empezar</h3>
+        <p>Ve solo a los temas que fallaste. Media hora de repaso y estás cubierto.</p>
+      </article>
+      <article class="band">
+        <span class="score">8 – 9</span>
+        <h3>Te falta poco</h3>
+        <p>Estudia los temas fallados en orden. Suman del orden de 15 horas.</p>
+      </article>
+      <article class="band">
+        <span class="score">5 – 7</span>
+        <h3>Conviene prepararte antes</h3>
+        <p>Recorre la guía completa saltando lo que ya dominas. Unas 40 horas.</p>
+      </article>
+      <article class="band">
+        <span class="score">0 – 4</span>
+        <h3>Empieza por los fundamentos</h3>
+        <p>Haz primero un curso introductorio de Python y vuelve aquí. Unas 60 horas en total.</p>
+      </article>
+    </div>
+  </section>
+
+  <div class="layout">
+
+    <nav class="rail" aria-label="Índice de temas">
+      <p class="rail-title">Los 12 temas</p>
+      <p class="group">Fundamentos</p>
+      <ol>
+        <li><a href="#a1"><span class="n">01</span><span>Referencias y mutabilidad</span></a></li>
+        <li><a href="#a2"><span class="n">02</span><span>Indexación y slicing</span></a></li>
+      </ol>
+      <p class="group">NumPy</p>
+      <ol>
+        <li><a href="#b1"><span class="n">03</span><span>Broadcasting y shapes</span></a></li>
+        <li><a href="#b4"><span class="n">04</span><span>Álgebra de portafolios</span></a></li>
+      </ol>
+      <p class="group">Pandas</p>
+      <ol>
+        <li><a href="#c1"><span class="n">05</span><span>loc frente a iloc</span></a></li>
+        <li><a href="#c3"><span class="n">06</span><span>merge y cardinalidad</span></a></li>
+        <li><a href="#c5"><span class="n">07</span><span>Índices temporales</span></a></li>
+        <li><a href="#c6"><span class="n">08</span><span>Retornos y look-ahead</span></a></li>
+        <li><a href="#c7"><span class="n">09</span><span>Asignación segura</span></a></li>
+      </ol>
+      <p class="group">Finanzas aplicadas</p>
+      <ol>
+        <li><a href="#d1"><span class="n">10</span><span>Anualizar volatilidad</span></a></li>
+        <li><a href="#d2"><span class="n">11</span><span>Retornos logarítmicos</span></a></li>
+        <li><a href="#d3"><span class="n">12</span><span>OLS con statsmodels</span></a></li>
+      </ol>
+    </nav>
+
+    <main class="topics">
+
+      <!-- 01 ───────────────────────────────────────────── -->
+      <article class="topic" id="a1">
+        <div class="topic-head">
+          <span class="topic-num">01 · A1</span>
+          <span class="topic-hours">≈ 3 h</span>
+        </div>
+        <h2>Referencias y mutabilidad</h2>
+        <p class="intro">
+          Asignar un nombre a una lista no crea una copia: crea un segundo nombre para el mismo objeto en
+          memoria. Modificar por un nombre cambia lo que ve el otro.
+        </p>
+        <div class="pair">
+          <div class="slab bad">
+            <span class="tag"><span class="mark">✕</span>Error típico</span>
+<pre>a = [1, 2, 3]
+b = a          <span class="c"># mismo objeto</span>
+b.append(4)
+print(a)       <span class="c"># [1, 2, 3, 4]</span></pre>
+          </div>
+          <div class="slab good">
+            <span class="tag"><span class="mark">✓</span>Correcto</span>
+<pre>a = [1, 2, 3]
+b = a.copy()   <span class="c"># objeto nuevo</span>
+b.append(4)
+print(a)       <span class="c"># [1, 2, 3]</span></pre>
+          </div>
+        </div>
+        <div class="why">
+          <span class="tag">Por qué importa</span>
+          <p>
+            Si pasas un vector de pesos a una función que lo normaliza <b>in place</b>, tu vector original
+            queda modificado sin que lo pidas. El mismo mecanismo aplica a diccionarios, arrays de NumPy y
+            DataFrames: <code>df2 = df</code> no te da una copia de respaldo.
+          </p>
+        </div>
+        <div class="check">
+          <span class="tag">Compruébalo tú</span>
+          <p>¿Qué imprime? Piénsalo antes de ejecutarlo.</p>
+<pre>pesos = {<span class="s">'AAPL'</span>: 0.5, <span class="s">'MSFT'</span>: 0.5}
+respaldo = pesos
+pesos[<span class="s">'AAPL'</span>] = 0.7
+print(respaldo[<span class="s">'AAPL'</span>])</pre>
+        </div>
+      </article>
+
+      <!-- 02 ───────────────────────────────────────────── -->
+      <article class="topic" id="a2">
+        <div class="topic-head">
+          <span class="topic-num">02 · A2</span>
+          <span class="topic-hours">≈ 2 h</span>
+        </div>
+        <h2>Indexación y slicing</h2>
+        <p class="intro">
+          La notación <code>[inicio:fin:paso]</code> excluye siempre el extremo derecho. Los índices
+          negativos cuentan desde el final, y son la forma idiomática de tomar los últimos N elementos.
+        </p>
+        <div class="pair">
+          <div class="slab bad">
+            <span class="tag"><span class="mark">✕</span>Error típico</span>
+<pre>x = list(range(10))
+
+x[2:8:3]       <span class="c"># ¿[2,3,4]? ¿[2,5,8]?</span>
+               <span class="c"># No: es [2, 5]</span>
+x[len(x)-5:]   <span class="c"># funciona, pero torpe</span></pre>
+          </div>
+          <div class="slab good">
+            <span class="tag"><span class="mark">✓</span>Correcto</span>
+<pre>x = list(range(10))
+
+x[2:8:3]       <span class="c"># [2, 5] — el 8 se excluye</span>
+x[-5:]         <span class="c"># últimos 5</span>
+x[::-1]        <span class="c"># invertido</span></pre>
+          </div>
+        </div>
+        <div class="why">
+          <span class="tag">Por qué importa</span>
+          <p>
+            Toda ventana móvil es un slice: los <b>últimos 60 días</b> para estimar volatilidad, el
+            <b>primer 70%</b> de la muestra para entrenar. Un error de un elemento en el corte
+            entrena el modelo con un dato que no debía ver.
+          </p>
+        </div>
+        <div class="check">
+          <span class="tag">Compruébalo tú</span>
+          <p>Escribe el slice que toma los últimos 60 elementos, saltando de dos en dos.</p>
+<pre>precios = list(range(500))
+ventana = precios[<span class="o">...</span>]   <span class="c"># debe tener 30 elementos</span></pre>
+        </div>
+      </article>
+
+      <!-- 03 ───────────────────────────────────────────── -->
+      <article class="topic" id="b1">
+        <div class="topic-head">
+          <span class="topic-num">03 · B1</span>
+          <span class="topic-hours">≈ 5 h</span>
+        </div>
+        <h2>NumPy: broadcasting y shapes</h2>
+        <p class="intro">
+          Cuando dos arrays tienen formas distintas, NumPy las alinea automáticamente en vez de fallar.
+          Es potente y es la fuente número uno de resultados silenciosamente equivocados.
+        </p>
+        <div class="pair">
+          <div class="slab bad">
+            <span class="tag"><span class="mark">✕</span>Error típico</span>
+<pre><span class="k">import</span> numpy <span class="k">as</span> np
+
+a = np.arange(3).reshape(3, 1)
+b = np.arange(3)
+(a + b).shape   <span class="c"># (3, 3)</span>
+                <span class="c"># esperabas (3,)</span></pre>
+          </div>
+          <div class="slab good">
+            <span class="tag"><span class="mark">✓</span>Correcto</span>
+<pre>a = np.arange(3).reshape(3, 1)
+b = np.arange(3)
+
+(a.ravel() + b).shape   <span class="c"># (3,)</span>
+<span class="k">assert</span> a.ravel().shape == b.shape</pre>
+          </div>
+        </div>
+        <div class="why">
+          <span class="tag">Por qué importa</span>
+          <p>
+            Restar dos series de 3 000 precios con formas mal alineadas no da un error: da una
+            <b>matriz de 3 000 × 3 000</b> —nueve millones de números— y el promedio de esa matriz es un
+            número perfectamente plausible que no significa nada. Verifica <code>.shape</code> siempre.
+          </p>
+        </div>
+        <div class="check">
+          <span class="tag">Compruébalo tú</span>
+          <p>¿Cuál es el <code>shape</code> del resultado y cuánta memoria ocupa?</p>
+<pre>precios = np.random.rand(2000, 1)
+media = np.random.rand(2000)
+desv = precios - media
+print(desv.shape)</pre>
+        </div>
+      </article>
+
+      <!-- 04 ───────────────────────────────────────────── -->
+      <article class="topic" id="b4">
+        <div class="topic-head">
+          <span class="topic-num">04 · B4</span>
+          <span class="topic-hours">≈ 4 h</span>
+        </div>
+        <h2>NumPy: álgebra de portafolios</h2>
+        <p class="intro">
+          En NumPy, <code>*</code> multiplica elemento a elemento y <code>@</code> hace producto matricial.
+          La varianza de un portafolio es una forma cuadrática y necesita el segundo.
+        </p>
+        <div class="pair">
+          <div class="slab bad">
+            <span class="tag"><span class="mark">✕</span>Error típico</span>
+<pre>w = np.array([0.6, 0.4])
+S = np.array([[0.04, 0.01],
+              [0.01, 0.09]])
+
+var = w * S * w   <span class="c"># matriz 2x2</span>
+                  <span class="c"># no es un escalar</span></pre>
+          </div>
+          <div class="slab good">
+            <span class="tag"><span class="mark">✓</span>Correcto</span>
+<pre>var = w @ S @ w          <span class="c"># 0.0244</span>
+vol = np.sqrt(var)       <span class="c"># 0.1562</span>
+
+<span class="c"># equivalente y explícito:</span>
+var = w.T @ S @ w</pre>
+          </div>
+        </div>
+        <div class="why">
+          <span class="tag">Por qué importa</span>
+          <p>
+            <b>σ²ₚ = wᵀΣw</b> es la ecuación sobre la que se construye toda la optimización de portafolios.
+            Si la calculas con <code>*</code>, obtienes una matriz en lugar de un número y el optimizador
+            falla o —peor— converge a algo sin sentido.
+          </p>
+        </div>
+        <div class="check">
+          <span class="tag">Compruébalo tú</span>
+          <p>Con tres activos equiponderados, calcula la volatilidad anual del portafolio.</p>
+<pre>w = np.repeat(1/3, 3)
+S = np.array([[0.040, 0.010, 0.005],
+              [0.010, 0.090, 0.020],
+              [0.005, 0.020, 0.060]])
+<span class="c"># vol = ?</span></pre>
+        </div>
+      </article>
+
+      <!-- 05 ───────────────────────────────────────────── -->
+      <article class="topic" id="c1">
+        <div class="topic-head">
+          <span class="topic-num">05 · C1</span>
+          <span class="topic-hours">≈ 4 h</span>
+        </div>
+        <h2>Pandas: <code>loc</code> frente a <code>iloc</code></h2>
+        <p class="intro">
+          <code>loc</code> selecciona por etiqueta del índice e incluye el extremo derecho.
+          <code>iloc</code> selecciona por posición y lo excluye, como el slicing de Python.
+        </p>
+        <div class="pair">
+          <div class="slab bad">
+            <span class="tag"><span class="mark">✕</span>Error típico</span>
+<pre>df = pd.DataFrame({<span class="s">'px'</span>: range(5)})
+
+df.loc[0:2]    <span class="c"># 3 filas (0,1,2)</span>
+df.iloc[0:2]   <span class="c"># 2 filas (0,1)</span>
+<span class="c"># asumir que ambas dan lo mismo</span></pre>
+          </div>
+          <div class="slab good">
+            <span class="tag"><span class="mark">✓</span>Correcto</span>
+<pre><span class="c"># etiquetas → loc (inclusivo)</span>
+df.loc[<span class="s">'2024-01-01'</span>:<span class="s">'2024-03-31'</span>]
+
+<span class="c"># posiciones → iloc (exclusivo)</span>
+df.iloc[:100]        <span class="c"># primeras 100</span>
+df.iloc[-20:]        <span class="c"># últimas 20</span></pre>
+          </div>
+        </div>
+        <div class="why">
+          <span class="tag">Por qué importa</span>
+          <p>
+            Después de filtrar, <b>el índice deja de coincidir con la posición</b>: si te quedas con las
+            filas donde el volumen es alto, el índice puede ser 3, 17, 48… Ahí <code>df.loc[0:2]</code>
+            probablemente falla y <code>df.iloc[0:2]</code> te da las dos primeras supervivientes.
+          </p>
+        </div>
+        <div class="check">
+          <span class="tag">Compruébalo tú</span>
+          <p>¿Cuántas filas devuelve cada línea?</p>
+<pre>df = pd.DataFrame({<span class="s">'px'</span>: [10, 11, 12, 13, 14]})
+alto = df[df[<span class="s">'px'</span>] > 11]
+print(len(alto.loc[2:3]), len(alto.iloc[0:2]))</pre>
+        </div>
+      </article>
+
+      <!-- 06 ───────────────────────────────────────────── -->
+      <article class="topic" id="c3">
+        <div class="topic-head">
+          <span class="topic-num">06 · C3</span>
+          <span class="topic-hours">≈ 5 h</span>
+        </div>
+        <h2>Pandas: <code>merge</code> y cardinalidad</h2>
+        <p class="intro">
+          Si la clave está repetida en la tabla derecha, cada fila de la izquierda se replica una vez por
+          coincidencia. Pandas no te avisa: te devuelve más filas de las que entraron.
+        </p>
+        <div class="pair">
+          <div class="slab bad">
+            <span class="tag"><span class="mark">✕</span>Error típico</span>
+<pre><span class="c"># df_a: 100 filas, id único</span>
+<span class="c"># df_b: 5 filas, todas el mismo id</span>
+
+out = pd.merge(df_a, df_b,
+               on=<span class="s">'id'</span>, how=<span class="s">'left'</span>)
+len(out)   <span class="c"># 104, no 100</span></pre>
+          </div>
+          <div class="slab good">
+            <span class="tag"><span class="mark">✓</span>Correcto</span>
+<pre>out = pd.merge(df_a, df_b, on=<span class="s">'id'</span>,
+               how=<span class="s">'left'</span>,
+               validate=<span class="s">'1:1'</span>)
+<span class="c"># lanza MergeError si se duplica</span>
+
+<span class="k">assert</span> len(out) == len(df_a)</pre>
+          </div>
+        </div>
+        <div class="why">
+          <span class="tag">Por qué importa</span>
+          <p>
+            Duplicar filas al cruzar posiciones con precios <b>infla la exposición</b> que reportas. Es el
+            error más caro de esta lista porque no se ve: los números siguen siendo plausibles. Usa
+            <code>validate</code> (<code>'1:1'</code>, <code>'m:1'</code>, <code>'1:m'</code>) en todo merge
+            de producción.
+          </p>
+        </div>
+        <div class="check">
+          <span class="tag">Compruébalo tú</span>
+          <p>¿Cuántas filas salen, y qué pasa si añades <code>validate='1:1'</code>?</p>
+<pre>a = pd.DataFrame({<span class="s">'id'</span>: [1, 2, 3], <span class="s">'w'</span>: [.5, .3, .2]})
+b = pd.DataFrame({<span class="s">'id'</span>: [1, 1, 2], <span class="s">'px'</span>: [10, 11, 20]})
+print(len(pd.merge(a, b, on=<span class="s">'id'</span>, how=<span class="s">'left'</span>)))</pre>
+        </div>
+      </article>
+
+      <!-- 07 ───────────────────────────────────────────── -->
+      <article class="topic" id="c5">
+        <div class="topic-head">
+          <span class="topic-num">07 · C5</span>
+          <span class="topic-hours">≈ 5 h</span>
+        </div>
+        <h2>Pandas: índices temporales</h2>
+        <p class="intro">
+          Con un <code>DatetimeIndex</code>, <code>resample</code> cambia la frecuencia de la serie
+          respetando el calendario. Agrupar por número de mes mezcla todos los años.
+        </p>
+        <div class="pair">
+          <div class="slab bad">
+            <span class="tag"><span class="mark">✕</span>Error típico</span>
+<pre><span class="c"># colapsa 2020..2024 en 12 grupos</span>
+px.groupby(px.index.month).last()
+
+<span class="c"># toma el día calendario exacto:</span>
+<span class="c"># si cae sábado, devuelve NaN</span>
+px.asfreq(<span class="s">'M'</span>)</pre>
+          </div>
+          <div class="slab good">
+            <span class="tag"><span class="mark">✓</span>Correcto</span>
+<pre>px.index = pd.to_datetime(px.index)
+
+px.resample(<span class="s">'ME'</span>).last()   <span class="c"># cierre mensual</span>
+px.resample(<span class="s">'W'</span>).mean()    <span class="c"># media semanal</span>
+
+px.resample(<span class="s">'ME'</span>).agg(
+    {<span class="s">'px'</span>: <span class="s">'last'</span>, <span class="s">'vol'</span>: <span class="s">'sum'</span>})</pre>
+          </div>
+        </div>
+        <div class="why">
+          <span class="tag">Por qué importa</span>
+          <p>
+            Casi todo dato financiero llega diario y casi todo modelo lo quiere mensual o semanal. Además,
+            distintas columnas se agregan distinto: el <b>precio</b> se toma al cierre, el <b>volumen</b> se
+            suma, el <b>retorno</b> se compone. Un solo <code>.mean()</code> para todo es un error de
+            contenido, no de código.
+          </p>
+        </div>
+        <div class="check">
+          <span class="tag">Compruébalo tú</span>
+          <p>Convierte a frecuencia mensual tomando el último precio y el volumen acumulado.</p>
+<pre>idx = pd.date_range(<span class="s">'2024-01-01'</span>, periods=90, freq=<span class="s">'D'</span>)
+df = pd.DataFrame({<span class="s">'px'</span>: range(90), <span class="s">'vol'</span>: 1},
+                  index=idx)
+<span class="c"># mensual = ?</span></pre>
+        </div>
+      </article>
+
+      <!-- 08 ───────────────────────────────────────────── -->
+      <article class="topic" id="c6">
+        <div class="topic-head">
+          <span class="topic-num">08 · C6</span>
+          <span class="topic-hours">≈ 4 h</span>
+        </div>
+        <h2>Pandas: retornos y look-ahead</h2>
+        <p class="intro">
+          <code>pct_change()</code> calcula el retorno simple. <code>shift(1)</code> mira al pasado;
+          <code>shift(-1)</code> mira al futuro, y eso invalida cualquier backtest.
+        </p>
+        <div class="pair">
+          <div class="slab bad">
+            <span class="tag"><span class="mark">✕</span>Error típico</span>
+<pre><span class="c"># diferencia absoluta, no retorno</span>
+df[<span class="s">'px'</span>].diff()
+
+<span class="c"># mira el precio de mañana</span>
+df[<span class="s">'px'</span>] / df[<span class="s">'px'</span>].shift(-1) - 1
+
+<span class="c"># señal de hoy sobre retorno de hoy</span>
+df[<span class="s">'senal'</span>] * df[<span class="s">'ret'</span>]</pre>
+          </div>
+          <div class="slab good">
+            <span class="tag"><span class="mark">✓</span>Correcto</span>
+<pre>df[<span class="s">'ret'</span>] = df[<span class="s">'px'</span>].pct_change()
+
+<span class="c"># la señal de ayer opera hoy</span>
+df[<span class="s">'pnl'</span>] = (df[<span class="s">'senal'</span>].shift(1)
+               * df[<span class="s">'ret'</span>])</pre>
+          </div>
+        </div>
+        <div class="why">
+          <span class="tag">Por qué importa</span>
+          <p>
+            Esto es <b>look-ahead bias</b> y produce backtests espectaculares que no se pueden replicar con
+            dinero real. Regla práctica: toda señal debe multiplicarse por el retorno del período
+            <b>siguiente</b> a su observación. Si tu Sharpe supera 4, sospecha de esta línea antes que de tu
+            talento.
+          </p>
+        </div>
+        <div class="check">
+          <span class="tag">Compruébalo tú</span>
+          <p>¿Cuál de las dos series de PnL es realizable en la práctica?</p>
+<pre>df[<span class="s">'ret'</span>] = df[<span class="s">'px'</span>].pct_change()
+df[<span class="s">'senal'</span>] = (df[<span class="s">'ret'</span>] > 0).astype(int)
+a = df[<span class="s">'senal'</span>] * df[<span class="s">'ret'</span>]
+b = df[<span class="s">'senal'</span>].shift(1) * df[<span class="s">'ret'</span>]</pre>
+        </div>
+      </article>
+
+      <!-- 09 ───────────────────────────────────────────── -->
+      <article class="topic" id="c7">
+        <div class="topic-head">
+          <span class="topic-num">09 · C7</span>
+          <span class="topic-hours">≈ 3 h</span>
+        </div>
+        <h2>Pandas: asignación segura</h2>
+        <p class="intro">
+          Encadenar dos indexaciones para asignar (<code>df[...][...] = x</code>) modifica una copia
+          temporal. El DataFrame original queda intacto y solo aparece una advertencia.
+        </p>
+        <div class="pair">
+          <div class="slab bad">
+            <span class="tag"><span class="mark">✕</span>Error típico</span>
+<pre><span class="c"># SettingWithCopyWarning</span>
+<span class="c"># y no modifica nada</span>
+df[df[<span class="s">'pd'</span>] > 0.05][<span class="s">'flag'</span>] = 1
+
+<span class="c"># mismo problema, otra forma</span>
+sub = df[df[<span class="s">'pd'</span>] > 0.05]
+sub[<span class="s">'flag'</span>] = 1</pre>
+          </div>
+          <div class="slab good">
+            <span class="tag"><span class="mark">✓</span>Correcto</span>
+<pre><span class="c"># un solo .loc: filas y columna</span>
+df.loc[df[<span class="s">'pd'</span>] > 0.05, <span class="s">'flag'</span>] = 1
+
+<span class="c"># si de verdad quieres una copia</span>
+sub = df[df[<span class="s">'pd'</span>] > 0.05].copy()
+sub[<span class="s">'flag'</span>] = 1</pre>
+          </div>
+        </div>
+        <div class="why">
+          <span class="tag">Por qué importa</span>
+          <p>
+            El fallo es <b>silencioso</b>: el script corre, no lanza excepción, y la marca de riesgo
+            simplemente nunca se aplicó. Descubres el problema al revisar el reporte final, no al ejecutar.
+          </p>
+        </div>
+        <div class="check">
+          <span class="tag">Compruébalo tú</span>
+          <p>¿Cuántas filas quedan marcadas después de correr esto?</p>
+<pre>df = pd.DataFrame({<span class="s">'pd'</span>: [.01, .07, .09], <span class="s">'flag'</span>: 0})
+df[df[<span class="s">'pd'</span>] > 0.05][<span class="s">'flag'</span>] = 1
+print(df[<span class="s">'flag'</span>].sum())</pre>
+        </div>
+      </article>
+
+      <!-- 10 ───────────────────────────────────────────── -->
+      <article class="topic" id="d1">
+        <div class="topic-head">
+          <span class="topic-num">10 · D1</span>
+          <span class="topic-hours">≈ 3 h</span>
+        </div>
+        <h2>Anualizar volatilidad</h2>
+        <p class="intro">
+          La varianza escala linealmente con el tiempo; la desviación estándar escala con la raíz. De ahí
+          el factor <code>√252</code> para pasar de diario a anual.
+        </p>
+        <div class="pair">
+          <div class="slab bad">
+            <span class="tag"><span class="mark">✕</span>Error típico</span>
+<pre>vol_anual = ret.std() * 252
+<span class="c"># 252x demasiado grande</span>
+
+vol_anual = ret.var() * 252
+<span class="c"># esto es la varianza, no la vol</span></pre>
+          </div>
+          <div class="slab good">
+            <span class="tag"><span class="mark">✓</span>Correcto</span>
+<pre>vol_anual = ret.std() * np.sqrt(252)
+
+<span class="c"># mensual → anual</span>
+vol_anual = ret_m.std() * np.sqrt(12)
+
+<span class="c"># y el retorno sí escala lineal</span>
+mu_anual = ret.mean() * 252</pre>
+          </div>
+        </div>
+        <div class="why">
+          <span class="tag">Por qué importa</span>
+          <p>
+            El ratio de Sharpe es <b>μ / σ</b>, y ambos se anualizan con factores distintos: el numerador
+            con 252 y el denominador con √252. Equivocarse aquí multiplica el Sharpe por ~16 y hace que
+            cualquier estrategia parezca extraordinaria.
+          </p>
+        </div>
+        <div class="check">
+          <span class="tag">Compruébalo tú</span>
+          <p>Si la volatilidad diaria es 1.2%, ¿cuál es la anual? ¿Y con datos semanales?</p>
+<pre>sigma_d = 0.012
+<span class="c"># anual = ?   (pista: ~19%)</span>
+<span class="c"># si fuera semanal, ¿qué factor usas?</span></pre>
+        </div>
+      </article>
+
+      <!-- 11 ───────────────────────────────────────────── -->
+      <article class="topic" id="d2">
+        <div class="topic-head">
+          <span class="topic-num">11 · D2</span>
+          <span class="topic-hours">≈ 3 h</span>
+        </div>
+        <h2>Retornos logarítmicos</h2>
+        <p class="intro">
+          El retorno logarítmico es <code>ln(Pₜ) − ln(Pₜ₋₁)</code>. Aplica el logaritmo a los
+          <em>precios</em>, nunca a los retornos: estos pueden ser negativos.
+        </p>
+        <div class="pair">
+          <div class="slab bad">
+            <span class="tag"><span class="mark">✕</span>Error típico</span>
+<pre><span class="c"># log de un número negativo → NaN</span>
+np.log(px.pct_change())
+
+<span class="c"># log de una diferencia → NaN</span>
+np.log(px.diff())</pre>
+          </div>
+          <div class="slab good">
+            <span class="tag"><span class="mark">✓</span>Correcto</span>
+<pre>r_log = np.log(px).diff()
+
+<span class="c"># equivalente</span>
+r_log = np.log(px / px.shift(1))
+
+<span class="c"># volver a retorno simple</span>
+r_simple = np.expm1(r_log)</pre>
+          </div>
+        </div>
+        <div class="why">
+          <span class="tag">Por qué importa</span>
+          <p>
+            Los log-retornos son <b>aditivos en el tiempo</b>: el retorno de un mes es la suma de los
+            diarios. Los simples no lo son, hay que componerlos. Por eso casi todo modelo de series de
+            tiempo (GARCH incluido) trabaja en logaritmos.
+          </p>
+        </div>
+        <div class="check">
+          <span class="tag">Compruébalo tú</span>
+          <p>Verifica la aditividad: ¿coinciden las dos cantidades?</p>
+<pre>px = pd.Series([100, 105, 99, 108])
+r = np.log(px).diff().dropna()
+print(r.sum(), np.log(px.iloc[-1] / px.iloc[0]))</pre>
+        </div>
+      </article>
+
+      <!-- 12 ───────────────────────────────────────────── -->
+      <article class="topic" id="d3">
+        <div class="topic-head">
+          <span class="topic-num">12 · D3</span>
+          <span class="topic-hours">≈ 5 h</span>
+        </div>
+        <h2>OLS con <code>statsmodels</code></h2>
+        <p class="intro">
+          La API matricial de <code>statsmodels</code> <strong>no</strong> agrega intercepto. Si no lo pones
+          tú, estimas una recta forzada a pasar por el origen.
+        </p>
+        <div class="pair">
+          <div class="slab bad">
+            <span class="tag"><span class="mark">✕</span>Error típico</span>
+<pre><span class="k">import</span> statsmodels.api <span class="k">as</span> sm
+
+modelo = sm.OLS(y, X).fit()
+<span class="c"># sin constante: la recta pasa</span>
+<span class="c"># por el origen y beta sale sesgado</span></pre>
+          </div>
+          <div class="slab good">
+            <span class="tag"><span class="mark">✓</span>Correcto</span>
+<pre>X = sm.add_constant(X)
+modelo = sm.OLS(y, X).fit()
+print(modelo.summary())
+
+<span class="c"># o con fórmula (sí la agrega sola)</span>
+<span class="k">import</span> statsmodels.formula.api <span class="k">as</span> smf
+smf.ols(<span class="s">'ret ~ mkt'</span>, data=df).fit()</pre>
+          </div>
+        </div>
+        <div class="why">
+          <span class="tag">Por qué importa</span>
+          <p>
+            En un CAPM, <b>el intercepto es el alfa</b>. Omitirlo no solo sesga la beta: elimina del modelo
+            justamente el parámetro que querías estimar. Y a diferencia de otros errores de esta lista,
+            <code>scikit-learn</code> sí agrega el intercepto por defecto, así que la costumbre traiciona.
+          </p>
+        </div>
+        <div class="check">
+          <span class="tag">Compruébalo tú</span>
+          <p>Estima los dos modelos y compara la beta. ¿Cuánto cambia?</p>
+<pre>rng = np.random.default_rng(42)
+mkt = rng.normal(0, .01, 500)
+ret = 0.0004 + 1.2 * mkt + rng.normal(0, .005, 500)
+
+sin_c = sm.OLS(ret, mkt).fit().params
+con_c = sm.OLS(ret, sm.add_constant(mkt)).fit().params</pre>
+        </div>
+      </article>
+
+    </main>
+  </div>
+
+  <section class="closing">
+    <h2>Cómo estudiar esto</h2>
+    <p>
+      No leas la guía de corrido. Cada tema está pensado para trabajarse con un intérprete abierto al lado:
+      el objetivo no es reconocer el código correcto, es escribirlo sin consultarlo.
+    </p>
+    <ul>
+      <li><b>Ejecuta cada bloque.</b> Copia el "error típico" primero y observa qué devuelve. Entender por qué falla vale más que memorizar la forma correcta.</li>
+      <li><b>Resuelve el "compruébalo tú" antes de ejecutarlo.</b> Predecir el resultado es lo que se te va a pedir en el programa.</li>
+      <li><b>Usa datos reales cuanto antes.</b> Descarga una serie de precios y repite los 12 temas sobre ella. Los errores aparecen con datos sucios, no con <code>range(10)</code>.</li>
+      <li><b>Repite la autoevaluación al terminar.</b> Puedes rendirla las veces que quieras.</li>
+    </ul>
+    <p class="foot">
+      Las horas indicadas son una estimación de estudio con práctica, no de lectura. Si vienes de otro
+      lenguaje de programación, divídelas a la mitad; si es tu primer contacto con la programación,
+      empieza por un curso introductorio de Python antes de volver aquí.
+    </p>
+  </section>
+
+</div>
